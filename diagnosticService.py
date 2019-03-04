@@ -29,13 +29,24 @@ def get_tasks():
     if authentication_token != request.args.get('token'):
         abort(404)
 
+    # Call shell for diagnostic information available to bash
     proc = subprocess.Popen(['./diagnostics.sh'], stdout=subprocess.PIPE, shell=False)
 
+    # get output
     (output,errors) = proc.communicate()
 
+    if errors:
+        print("Error:")
+        print(errors)
+        print("Default aborting.")
+        abort(404)
+
+    # Decode bytes and split by double newline for
+    # individual sections based on bash script
     output=output.decode('utf-8')
     output=output.strip().split("\n\n")
 
+    # Parse Memory information
     holder=output[0].strip().split('\n')
 
     final_output={}
@@ -55,6 +66,7 @@ def get_tasks():
         final_output[holder[0]][hold2[0]]=tempDict
 
 
+    # Parse Filesystem information
     holder=output[1].strip().split('\n')
 
     final_output[holder[0]]=[]
@@ -76,6 +88,7 @@ def get_tasks():
 
         final_output[holder[0]].append(x)
 
+    # Send
     return jsonify(final_output)
 
 if __name__ == '__main__':
@@ -86,5 +99,5 @@ if __name__ == '__main__':
     print("Authentication Token: " + authentication_token)
     print("Use this parameter for calling diagnostics: ?token="+authentication_token)
     print("")
-    # app.run(debug=True,host='192.168.0.30',port=9999)
+
     app.run(host=sys.argv[1],port=int(sys.argv[2]))
