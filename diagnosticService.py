@@ -19,23 +19,7 @@ import subprocess, random, string, sys
 
 app = Flask(__name__)
 
-tasks = [
-    {
-        'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol', 
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web', 
-        'done': False
-    }
-]
-
 authentication_token=''.join(random.choice(string.ascii_uppercase+string.ascii_lowercase+string.digits) for _ in range(32))
-
 
 @app.route('/diagnostics', methods=['GET'])
 def get_tasks():
