@@ -31,7 +31,7 @@ You could also include python's virtualenv to run it as an independent process h
 Trying it on curl:
 
 ```bash
-curl -X GET 'http://127.0.0.1:9999/diagnostics?token=123123
+curl -k  -H "Accept: application/json" -X GET http://127.0.0.1:9999/diagnostics?token=123123
 ```
 
 where 127.0.0.1 is the ip address the program listens on, 9999 is the port that the program listen on, and the token to authenticate is 123123
