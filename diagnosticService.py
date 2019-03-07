@@ -15,11 +15,67 @@
 # 
 
 from flask import Flask, jsonify, request, abort
-import subprocess, random, string, sys
+import subprocess, random, string, sys, os, psutil
+
+# Credits: https://github.com/giampaolo/psutil/blob/master/scripts/meminfo.py
+def bytes2human(n):
+    # http://code.activestate.com/recipes/578019
+    # >>> bytes2human(10000)
+    # '9.8K'
+    # >>> bytes2human(100001221)
+    # '95.4M'
+    symbols = ('K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y')
+    prefix = {}
+    for i, s in enumerate(symbols):
+        prefix[s] = 1 << (i + 1) * 10
+    for s in reversed(symbols):
+        if n >= prefix[s]:
+            value = float(n) / prefix[s]
+            return '%.1f%s' % (value, s)
+    return "%sB" % n
 
 app = Flask(__name__)
 
+# Generate 32 string length random token
 authentication_token=''.join(random.choice(string.ascii_uppercase+string.ascii_lowercase+string.digits) for _ in range(32))
+
+@app.route('/diagnosticsTest', methods=['GET'])
+def getSystemInfo():
+    global authentication_token
+
+    # To avoid malicious intent, check the token passed or else we return a default 404
+    if authentication_token != request.args.get('token'):
+        abort(404)
+
+    memory_information=psutil.virtual_memory()
+    swap_information=psutil.swap_memory()
+    cpu_logical=psutil.cpu_count()
+    cpu_real=psutil.cpu_count(logical=False)
+
+    memory_data={}
+
+    # Convert to dictionary
+    for entry in memory_information._fields:
+        memory_data[entry]=getattr(memory_information,entry)
+
+    swap_data={}
+
+    # Convert to dictionary
+    for entry in swap_information._fields:
+        swap_data[entry]=getattr(swap_information,entry)
+
+
+    output={
+        'physical_memory':memory_data,
+        'swap_memory':swap_data,
+        'cpu_count':{
+            'logical':cpu_logical,
+            'real':cpu_real
+        }
+    }
+
+    return jsonify(output)
+
 
 @app.route('/diagnostics', methods=['GET'])
 def get_tasks():
@@ -45,6 +101,32 @@ def get_tasks():
     # individual sections based on bash script
     output=output.decode('utf-8')
     output=output.strip().split("\n\n")
+
+    # data_output = {}
+    # for x in output:
+    #     x = x.split("\n")
+
+    #     data_output[x[0]]=None
+
+    #     if x[1].find('|') != -1:
+    #         pass
+
+    #     else:
+    #         data_output[x[0]]={}
+
+    #         hold=data_output[x[0]]
+
+    #         hold2 = x[1].split(',')
+    #         hold2size=len(hold2)-1
+
+    #         for i,y in enumerate(hold2):
+    #             if i != hold2size:
+    #                 if y not in hold:
+    #                     hold[y]={}
+    #                     hold=hold[y]
+    #             else:
+    #                 hold=y
+
 
     # Parse Memory information
     holder=output[0].strip().split('\n')
