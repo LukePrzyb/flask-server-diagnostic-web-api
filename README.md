@@ -15,6 +15,15 @@ sudo pip install flask
 
 If you have pip. If not, you will need to install pip for python3.
 
+
+psutil is a library designed for providing server information in a move clean, seamless matter. It is included here as an alternative to raw bash scripting, and is much cleaner.
+
+install psutil using:
+
+```bash
+sudo pip install psutil
+```
+
 Running
 ------
 Execution is straightforward:
