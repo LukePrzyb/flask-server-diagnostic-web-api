@@ -20,7 +20,7 @@ Running
 Execution is straightforward:
 
 ```bash
-python3 diagnosticService.py <ip-address> <port>
+python3 diagnosticService.py --ip=<ip-address> --port=<port>
 ```
 
 Where ip-address is the ip address that the web service should use (this allows flexibility in limiting access from outside a network or internal testing)
@@ -31,22 +31,9 @@ You could also include python's virtualenv to run it as an independent process h
 Trying it on curl:
 
 ```bash
-curl -k  -H "Accept: application/json" -X GET http://127.0.0.1:9999/diagnostics?token=123123
+curl -X GET 'http://127.0.0.1:9999/diagnostics?token=123123
 ```
 
 where 127.0.0.1 is the ip address the program listens on, 9999 is the port that the program listen on, and the token to authenticate is 123123
 
 The output will be a JSON encoded hash dataset with memory and filesystem information found using the bash scripts 'free -m' and 'df -h'
-
-psutil alternative
-------
-psutil is an alternative library that abstracts away acquiring memory and filesystem information for more cross-platform support
-
-Installation will require having python developer libraries (usually found as **python3xu-devel**) and once acquired is available via pip using:
-
-```bash
-sudo python3 -m pip install psutil
-```
-
-Currently this project was tested on CentOS Linux release 7.6.1810 (Core)
-
